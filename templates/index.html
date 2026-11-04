@@ -1,0 +1,986 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelX — AI Image Generator</title>
+    <meta name="description" content="Turn your imagination into stunning AI-generated images with PixelX.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+    color-scheme: dark;
+
+       --bg: #10111b;
+       --surface: #191a27;
+       --surface-2: #222334;
+       --text: #f4f4fc;
+       --muted: #a0a2b8;
+       --border: #303144;
+       --primary: #a18aff;
+       --primary-2: #6587ff;
+       --shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+       
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        button, textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .navbar {
+            height: 76px;
+            padding: 0 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .brand-mark {
+            width: 39px;
+            height: 39px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #a34ff5, #3479f6);
+            color: white;
+            font-size: 25px;
+            font-weight: 800;
+            box-shadow: 0 5px 18px #7755e833;
+        }
+
+        .brand-name {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .brand-name span {
+            background: linear-gradient(110deg, #a34ff5, #3479f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-btn {
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 12px;
+            font-size: 19px;
+        }
+
+        .main {
+            width: min(1120px, 90%);
+            margin: 0 auto;
+            padding: 55px 0 70px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 38px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 30px;
+            color: var(--primary);
+            background: color-mix(in srgb, var(--primary) 10%, transparent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(34px, 5vw, 56px);
+            line-height: 1.13;
+            letter-spacing: -2.5px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(100deg, #a34ff5, #3977f5);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .generator {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            max-width: 850px;
+            margin: 0 auto 45px;
+        }
+
+        .prompt-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 13px;
+        }
+
+        .prompt-box {
+            position: relative;
+        }
+
+        #promptInput {
+            width: 100%;
+            min-height: 145px;
+            resize: vertical;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface-2);
+            color: var(--text);
+            padding: 17px;
+            font-size: 14px;
+            line-height: 1.7;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        #promptInput:focus {
+            border-color: var(--primary);
+        }
+
+        #promptInput::placeholder {
+            color: var(--muted);
+        }
+
+        .prompt-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 18px;
+        }
+
+        .prompt-info {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+        }
+
+
+        .prompt-hint {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        #charCount {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .generate-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 14px 24px;
+            background: linear-gradient(110deg, #8d52ed, #4771f4);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 7px 20px #7955e833;
+            transition: transform 0.2s, opacity 0.2s;
+            min-width: 210px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .limit-note {
+           border: none;
+           background: transparent;
+           color: var(--muted);
+           font-size: 12px;
+           cursor: pointer;
+           text-decoration: underline;
+           text-underline-offset: 3px;
+           transition: color 0.2s;
+        }
+
+       .limit-note:hover {
+        color: var(--primary);
+    }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            font-size: 21px;
+            letter-spacing: -0.6px;
+        }
+
+        .section-heading p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .image-card {
+            min-width: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .image-wrapper {
+            position: relative;
+            background: var(--surface-2);
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .image-actions {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .image-label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .download-btn {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 9px 13px;
+            background: var(--surface-2);
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .download-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Progress Bar */
+         .limit-progress {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+       }
+
+     .limit-progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+       margin-bottom: 10px;
+       font-size: 12px;
+}
+
+.limit-progress-title {
+    color: var(--text);
+    font-weight: 600;
+}
+
+#attemptCount {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.progress-track {
+    height: 7px;
+    width: 100%;
+    background: var(--surface-2);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #a34ff5, #3479f6);
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+
+.limit-progress-note {
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+        .empty-state {
+            grid-column: 1 / -1;
+            border: 1px dashed var(--border);
+            border-radius: 18px;
+            padding: 55px 20px;
+            text-align: center;
+            background: var(--surface);
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 18px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background: var(--surface-2);
+            font-size: 27px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .loading-card {
+            aspect-ratio: 1 / 1;
+            border-radius: 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 38px;
+            height: 38px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-card p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .error-message {
+            display: none;
+            margin-top: 16px;
+            padding: 13px 15px;
+            border-radius: 10px;
+            background: #ef444415;
+            border: 1px solid #ef444444;
+            color: #ef6565;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            max-width: 850px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            margin: 60px auto 0;
+        }
+
+        .footer-divider {
+           height: 1px;
+           width: 100%;
+           background: var(--border);
+           margin-bottom: 25px;
+       }
+
+        .footer strong {
+            color: var(--primary);
+        }
+
+        .footer-heart {
+         color: var(--primary);
+        }
+
+        .footer-tagline {
+           margin-top: 7px;
+           font-size: 12px;
+        }
+
+
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 700px) {
+            .navbar {
+                height: 66px;
+                padding: 0 5%;
+            }
+
+            .main {
+                width: 92%;
+                padding-top: 38px;
+            }
+
+            .hero h1 {
+                letter-spacing: -1.5px;
+            }
+
+            .prompt-info {
+              align-items: flex-start;
+              flex-direction: column;
+              gap: 6px;
+           }
+
+            .generator {
+                padding: 17px;
+                border-radius: 17px;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            
+
+            .generate-btn {
+                width: 100%;
+            }
+
+            .section-heading h2 {
+                font-size: 19px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .results {
+          max-width: 850px;
+          margin: 0 auto;
+        }
+
+      .section-heading {
+        margin-bottom: 20px;
+     }
+
+    .gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+
+    
+/* Generator layout refinement */
+.generator {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 42px;
+}
+
+.prompt-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+    margin-top: 18px;
+}
+
+.prompt-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.generate-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.generate-btn {
+    min-width: 220px;
+}
+
+.limit-progress {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+.results {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.section-heading {
+    margin-bottom: 20px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+@media (max-width: 700px) {
+    .prompt-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7px;
+    }
+
+    .generate-actions,
+    .generate-btn {
+        width: 100%;
+    }
+
+    .gallery {
+        grid-template-columns: 1fr;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">X</div>
+            <div class="brand-name">Pixel<span>X</span></div>
+        </div>
+
+        <div class="nav-right">
+            <!-- <button class="theme-btn" id="themeToggle"
+                    aria-label="Toggle dark mode" title="Toggle theme">
+                ☾
+            </button> -->
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="eyebrow">✦ AI IMAGE GENERATOR</div>
+            <h1>Your Imagination.<br>
+                <span class="gradient-text">One Prompt Away.</span>
+            </h1>
+            <p>Turn your ideas into stunning visuals with the power of AI.<br>
+                Describe it, generate it, bring it to life.</p>
+        </section>
+
+          
+<section class="generator">
+    <label class="prompt-label" for="promptInput">
+        Describe your imagination
+    </label>
+
+    <div class="prompt-box">
+        <textarea
+            id="promptInput"
+            maxlength="2000"
+            placeholder="A cinematic photograph of a futuristic city at sunset, glowing neon lights, flying cars, ultra-detailed..."
+            aria-describedby="promptHint"
+        ></textarea>
+    </div>
+
+    <div class="prompt-footer">
+        <div class="prompt-info">
+            <p class="prompt-hint" id="promptHint">
+                ✨ Be descriptive for better results
+            </p>
+            <span id="charCount">0 / 2000 characters</span>
+        </div>
+
+        <div class="generate-actions">
+            <button class="generate-btn" id="generateBtn">
+                <span>✦</span>
+                <span id="buttonText">Generate Image</span>
+            </button>
+
+            <button class="limit-note" id="limitNote">
+                ⓘ Limited to 2 images per generation
+            </button>
+        </div>
+    </div>
+
+    <div class="limit-progress">
+        <div class="limit-progress-header">
+            <span class="limit-progress-title">
+                Generation attempts
+            </span>
+            <span id="attemptCount">0 / 2 used</span>
+        </div>
+
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <p class="limit-progress-note" id="limitProgressNote">
+            You have 2 generation attempts remaining in this session.
+        </p>
+    </div>
+
+    <div class="error-message" id="errorMessage" role="alert"></div>
+</section>
+
+
+         <section class="results">
+            <div class="section-heading">
+                <div>
+                    <h2>Your Creations</h2>
+                    <p id="resultSubtitle">Your generated images will appear here.</p>
+                </div>
+            </div>
+
+            <div class="gallery" id="gallery">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">✧</div>
+                    <h3>Your canvas is waiting</h3>
+                    <p>Enter a prompt above and let PixelX<br>
+                        transform your imagination into art.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+           <div class="footer-divider"></div>
+
+    <p> ©  <strong>PixelX</strong> 2026 | Made by Aryan Bharadwaj</p>
+    <p class="footer-tagline"> Your Imagination. One Prompt Away.</p>
+        </footer>
+
+
+    </main>
+
+    <script>
+        const promptInput = document.getElementById("promptInput");
+        const generateBtn = document.getElementById("generateBtn");
+        const buttonText = document.getElementById("buttonText");
+        const gallery = document.getElementById("gallery");
+        const emptyState = document.getElementById("emptyState");
+        const errorMessage = document.getElementById("errorMessage");
+        const charCount = document.getElementById("charCount");
+        const resultSubtitle = document.getElementById("resultSubtitle");
+        // const themeToggle = document.getElementById("themeToggle");
+        const limitNote = document.getElementById("limitNote");
+
+        let isGenerating = false;
+
+        // Character counter
+        promptInput.addEventListener("input", () => {
+            charCount.textContent =
+                `${promptInput.value.length} / 2000 characters`;
+        });
+
+        
+
+         limitNote.addEventListener("click", () => {
+         Swal.fire({
+           icon: "info",
+           title: "Under Testing",
+           text: "This feature is currently under testing. Stay tuned!",
+           confirmButtonText: "Got it",
+           confirmButtonColor: "#6366f1"
+        });
+       });
+
+        // Enter key shortcut: Ctrl + Enter
+        promptInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+                generateImage();
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = "block";
+        }
+
+        function hideError() {
+            errorMessage.textContent = "";
+            errorMessage.style.display = "none";
+        }
+
+        function showLoading() {
+            gallery.innerHTML = "";
+
+            for (let i = 0; i < 2; i++) {
+                const card = document.createElement("div");
+                card.className = "loading-card";
+                card.innerHTML = `
+                    <div class="spinner"></div>
+                    <p>Creating your imagination...</p>
+                `;
+                gallery.appendChild(card);
+            }
+
+            resultSubtitle.textContent = "Generating your images...";
+        }
+
+        const attemptCount = document.getElementById("attemptCount");
+const progressFill = document.getElementById("progressFill");
+const limitProgressNote = document.getElementById("limitProgressNote");
+
+const MAX_ATTEMPTS = 2;
+
+let attemptsUsed = Number(
+    sessionStorage.getItem("pixelxAttemptsUsed") || 0
+);
+
+function updateLimitProgress() {
+    const percentage = Math.min(
+        (attemptsUsed / MAX_ATTEMPTS) * 100,
+        100
+    );
+
+    attemptCount.textContent =
+        `${attemptsUsed} / ${MAX_ATTEMPTS} used`;
+
+    progressFill.style.width = `${percentage}%`;
+
+    if (attemptsUsed >= MAX_ATTEMPTS) {
+        limitProgressNote.textContent =
+            "You have reached the testing limit for this session.(Testing Phase)";
+
+        generateBtn.disabled = true;
+        buttonText.textContent = "Limit Reached";
+    } else {
+        const remaining = MAX_ATTEMPTS - attemptsUsed;
+
+        limitProgressNote.textContent =
+            `${remaining} generation attempt${remaining === 1 ? "" : "s"} remaining in this session.`;
+    }
+}
+
+updateLimitProgress();
+
+        function showEmptyState() {
+            gallery.innerHTML = "";
+            gallery.appendChild(emptyState);
+        }
+
+        function displayImages(images) {
+            gallery.innerHTML = "";
+
+            if (!images || images.length === 0) {
+                showError("The AI model returned no images. Please try again.");
+                showEmptyState();
+                return;
+            }
+
+            images.slice(0, 2).forEach((imageData, index) => {
+                const imageUrl = imageData.startsWith("data:")
+                    ? imageData
+                    : `data:image/png;base64,${imageData}`;
+
+                const card = document.createElement("article");
+                card.className = "image-card";
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "image-wrapper";
+
+                const img = document.createElement("img");
+                img.src = imageUrl;
+                img.alt = `PixelX AI generated image ${index + 1}`;
+                img.loading = "lazy";
+
+                wrapper.appendChild(img);
+
+                const actions = document.createElement("div");
+                actions.className = "image-actions";
+
+                const label = document.createElement("span");
+                label.className = "image-label";
+                label.textContent = `Creation ${index + 1}`;
+
+                const download = document.createElement("a");
+                download.className = "download-btn";
+                download.href = imageUrl;
+                download.download = `pixelx-creation-${Date.now()}-${index + 1}.png`;
+                download.textContent = "↓ Download";
+
+                actions.append(label, download);
+                card.append(wrapper, actions);
+                gallery.appendChild(card);
+            });
+
+            resultSubtitle.textContent =
+                `${images.length} image${images.length > 1 ? "s" : ""} generated successfully.`;
+        }
+
+        async function generateImage() {
+            if (isGenerating) return;
+
+            const prompt = promptInput.value.trim();
+
+            if (!prompt) {
+                showError("Please enter a prompt describing the image you want.");
+                promptInput.focus();
+                return;
+            }
+
+            if (prompt.length > 2000) {
+                showError("Your prompt is too long. Please keep it under 2000 characters.");
+                return;
+            }
+
+            if (attemptsUsed >= MAX_ATTEMPTS) {
+            showError("You have reached the generation limit for this session.");
+            return;
+            }
+
+            isGenerating = true;
+            generateBtn.disabled = true;
+            buttonText.textContent = "Generating...";
+            hideError();
+            
+            attemptsUsed++;
+            sessionStorage.setItem("pixelxAttemptsUsed",attemptsUsed);
+            updateLimitProgress();
+
+
+            showLoading();
+
+            try {
+                const response = await fetch("/api/generate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        number_of_images: 2
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || "Image generation failed. Please try again."
+                    );
+                }
+
+                displayImages(data.images);
+
+            } catch (error) {
+                showEmptyState();
+                showError(error.message || "Unable to connect to the server. Please try again.");
+                resultSubtitle.textContent = "Generation unsuccessful.";
+
+            } finally {
+                isGenerating = false;
+                updateLimitProgress();
+
+               if (attemptsUsed < MAX_ATTEMPTS) {
+                   generateBtn.disabled = false;
+                buttonText.textContent = "Generate Image";
+                }
+            }
+        }
+
+        generateBtn.addEventListener("click", generateImage);
+    </script>
+</body>
+</html>
