@@ -4,6 +4,9 @@
 
 PixelX is a lightweight AI image-generation web app that turns text prompts into images. It uses a Flask backend, a simple HTML/CSS/JavaScript frontend, and Cloudflare Workers AI for image generation.
 
+# Deployment
+PixelX is live at - https://pixelx-18-7glc.onrender.com/
+
 ## Features
 
 - Text-to-image generation from user prompts
@@ -144,6 +147,6 @@ Do not upload `.env` to Render or GitHub; set secrets in Render's environment se
 
 PixelX V1 includes the frontend, Flask endpoint, and Cloudflare Workers AI integration. Verify model access and account usage limits in Cloudflare before deploying or sharing publicly.
 
-## License
+## Author
 
-Add a license if you intend to distribute this project publicly.
+Aryan Bharadwaj
